@@ -1,5 +1,9 @@
+
+
 # custom
 env.js
+outputs/
+prompts/
 
 # Logs
 logs
