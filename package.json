@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "copy-paste": "^1.5.3",
+    "puppeteer": "^21.5.1"
+  }
+}
