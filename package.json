@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "copy-paste": "^1.5.3",
+    "dotenv": "^16.3.1",
+    "openai": "^4.17.4",
     "puppeteer": "^21.5.1"
   }
 }

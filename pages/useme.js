@@ -56,6 +56,7 @@ const scrapeData = async (url) => {
     console.error(error);
   }
 };
+
 const postOffer = async (payload) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -68,25 +69,32 @@ const postOffer = async (payload) => {
   console.log(`Connecting to ${url}`);
 
   try {
-    const ids = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("*"))
-        .map((el) => el.id)
-        .filter(Boolean);
-    });
-
-    // console.log("Available IDs:", ids);
     await page.waitForSelector("#id_description");
     await page.waitForSelector("#id_payment");
     await page.waitForSelector("#id_work_days");
     await page.waitForSelector("button[type=submit]");
 
     const changes = await page.evaluate((payload) => {
-      let data = [];
-
       const descriptionElement = document.getElementById("id_description");
-      if (descriptionElement) descriptionElement.value = payload.content;
+      const paymentElement = document.getElementById("id_payment");
+      const workDaysElement = document.getElementById("id_work_days");
+      const copyRightBtn = document.getElementById("id_copyright_transfer_0");
+      const submitBtn = document.querySelector("button[type=submit]");
 
-      return descriptionElement.value;
+      descriptionElement.value = payload.content;
+      paymentElement.value = payload.payment;
+      workDaysElement.value = payload.work_days;
+      copyRightBtn.click();
+
+      const sended = {
+        description: descriptionElement.value,
+        payment: paymentElement.value,
+        workDays: workDaysElement.value,
+      };
+
+      submitBtn.click();
+
+      return sended;
     }, payload);
 
     console.log(changes);

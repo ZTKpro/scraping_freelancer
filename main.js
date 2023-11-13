@@ -1,81 +1,87 @@
-const cp = require("copy-paste");
+require("dotenv").config();
+
+const fs = require("fs");
+
 const rl = require("./helpers/readline");
+const makeRequest = require("./utils/openai");
 
 const { scrapeData, postOffer } = require("./pages/useme");
 const messagePrompt = require("./prompts/message");
 
-const url = "https://useme.com/pl/jobs/";
+const saveFile = (payload) => {
+  const formattedData = `${payload.link}\n\n\n${payload.content}`;
+
+  fs.writeFile(`./outputs/${payload.id}.txt`, formattedData, (err) => {
+    if (err) throw err;
+    console.log("File is saved!");
+  });
+};
 
 async function main() {
-  const scrap = await scrapeData(url);
+  const urlPage = process.argv[2] || 1;
+  const urlType = process.argv[3] || "it";
+
+  const urls = {
+    it: `https://useme.com/pl/jobs/category/programowanie-i-it,35/?page=${urlPage}`,
+    web: `https://useme.com/pl/jobs/category/serwisy-internetowe,34/?page=${urlPage}`,
+  };
+
+  const pageUrl = urls[urlType];
+  console.log(`Scrap link: ${pageUrl}`);
+
+  const scrap = await scrapeData(pageUrl);
 
   console.log(scrap);
-
+  console.log();
   rl.question("Give a number of choosen offert: \n", async (answer) => {
-    const ids = answer.split(",").map(Number);
+    if (!answer) {
+      console.log("No answer provided, skipping...");
+      return;
+    }
+    const ids = answer.split(",").map((id) => {
+      const model = id.endsWith("-") ? "gpt-4" : "gpt-3.5-turbo";
+      return { id: Number(id.replace("-", "")), model };
+    });
 
-    const selectedItems = scrap.filter((item) => ids.includes(item.id));
+    const selectedItems = scrap.filter((item) =>
+      ids.find((id) => id.id === item.id)
+    );
 
     console.log(selectedItems);
-    for (const item of selectedItems) {
+    const promises = selectedItems.map(async (item) => {
       const payload = {
         id: item.offertId,
         content: "",
-        payment: "",
-        work_days: "",
+        link: "",
       };
       const copyToAI = messagePrompt(item.content);
-      cp.copy(copyToAI);
-      console.log(
-        "%cPrompt copied to clipboard",
-        "color: red; font-size: 20px; \n"
-      );
-      console.log();
 
+      console.log(payload.content);
+
+      console.log();
       console.log(item.title);
       console.log();
       console.log(item.content);
       console.log();
 
-      await new Promise((resolve) => {
-        rl.question("Paste answer here: \n", (answer1) => {
-          payload.content = answer1;
-          console.log();
+      payload.link = `useme.com/pl/jobs/${payload.id}/post-offer/`;
 
-          rl.question("Amount: \n", (answer2) => {
-            console.log();
+      const model = ids.find((id) => id.id === item.id).model;
+      const response = await makeRequest(copyToAI, model);
+      payload.content = response;
 
-            payload.payment = answer2;
+      console.log(payload);
 
-            rl.question("Days: \n", (answer3) => {
-              console.log();
+      console.log("Zatwierdzono");
 
-              payload.work_days = answer3;
+      saveFile(payload);
 
-              if (payload.work_days < 7) {
-                payload.work_days = 7;
-              }
+      console.log();
+    });
 
-              console.log(payload);
+    await Promise.all(promises);
 
-              rl.question("Potwierdzenie: \n", async (answer2) => {
-                if (answer2.toUpperCase() === "Y") {
-                  console.log("Zatwierdzono");
-                  await postOffer(payload);
-                } else if (answer2.toUpperCase() === "N") {
-                  console.log("Nie zatwierdzono");
-                } else {
-                  console.log("Nieznana odpowiedź: " + answer2);
-                }
-
-                console.log();
-                resolve();
-              });
-            });
-          });
-        });
-      });
-    }
+    console.log("\x1b[35m%s\x1b[0m", "Wszystkie obietnice zostały zakończone.");
   });
 }
 

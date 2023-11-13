@@ -1,13 +1,10 @@
-const CV = `<link rel="stylesheet" type="text/css" href="style.css">
-
+const CV = `
 <h1>Damian Szmurło</h1>
 
 <img src="https://raw.githubusercontent.com/ZTKpro/ZTKpro/main/cv_300.png" width="30%">
 
 <p>
-  📞 <strong>Kontakt:</strong> +48 727 702 545<br>
-  🌐 <strong>Strona:</strong> <a href="http://ds-code.netlify.app">ds-code.netlify.app</a><br>
-  🏠 <strong>Adres:</strong> Jana III Sobieskiego 114, Warsaw<br>
+  🌐 <strong>Strona:</strong> <a href="https://ds3d.netlify.app/"ds3d.netlify.app</a><br>
   🌍 <strong>Języki:</strong> Polski (Ojczysty), Angielski (B2)
 </p>
 
@@ -55,7 +52,6 @@ const CV = `<link rel="stylesheet" type="text/css" href="style.css">
 
 <ul>
   <li><a href="https://ds3d.netlify.app">ds3d.netlify.app</a></li>
-  <li><a href="https://edumat.pl">edumat.pl</a></li>
   <li><a href="https://hrk.pl">hrk.pl</a></li>
   <li><a href="https://leadme.ai">leadme.ai</a></li>
   <li><a href="https://github.com/ZTKpro/BlockChain">BlockChain Wallet</a></li>
