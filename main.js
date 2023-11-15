@@ -4,9 +4,9 @@ const fs = require("fs");
 
 const rl = require("./helpers/readline");
 const makeRequest = require("./utils/openai");
+const messagePrompt = require("./prompts/message");
 
 const { scrapeData, postOffer } = require("./pages/useme");
-const messagePrompt = require("./prompts/message");
 
 const saveFile = (payload) => {
   const formattedData = `${payload.link}\n\n\n${payload.content}`;
